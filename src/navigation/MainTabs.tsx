@@ -5,7 +5,7 @@ import TabBarIcon from "../components/utils/TabBarIcon";
 import TabBarText from "../components/utils/TabBarText";
 
 import Home from "../screens/Home";
-import Profile from "../screens/Profile";
+import Profile from "./ProfileStack";
 
 const Tabs = createBottomTabNavigator();
 const MainTabs = () => {

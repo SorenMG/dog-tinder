@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { View, Image } from "react-native";
 import { MainStackParamList } from "../types/navigation";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Layout, Text } from "react-native-rapi-ui";
+import { Layout, Text, Button } from "react-native-rapi-ui";
 import { supabase } from "../initSupabase";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function ({
   navigation,
@@ -27,7 +28,8 @@ export default function ({
       .catch((e) => console.log(e))
   }, [])
   return (
-    <Layout>
+    <Layout
+    >
       {data && (
         <View
           style={{
@@ -39,8 +41,19 @@ export default function ({
           <Image
             source={{ uri: data.image }}
             style={{
-              height: '100%'
+              height: 400,
+              width: 300
             }}
+          />
+          <Button
+            text={"Edit"}
+            onPress={() => {
+              navigation.navigate('Edit')
+            }}
+            style={{
+              marginTop: 20,
+            }}
+            disabled={loading}
           />
         </View>
       )}
