@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { View, Image } from "react-native";
+import { View, Image, TouchableOpacity, Modal, Pressable, StyleSheet } from "react-native";
 import { MainStackParamList } from "../types/navigation";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Layout, Text, Button, TextInput } from "react-native-rapi-ui";
 import { supabase } from "../initSupabase";
 import { Ionicons } from "@expo/vector-icons";
+import { Camera, CameraType } from 'expo-camera';
+import { decode } from 'base64-arraybuffer'
+import uuid from 'react-native-uuid';
+
 
 export default function ({
   navigation,
 }: NativeStackScreenProps<MainStackParamList, "MainTabs">) {
   const [data, setData] = useState(undefined);
   const [loading, setLoading] = useState(true);
+  const [startCamera, setStartCamera] = React.useState(false)
+  let camera: Camera
 
   const fetchData = async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -41,6 +47,41 @@ export default function ({
     navigation.pop(1)
   }
 
+  const activateCamera = async () => {
+    const { status } = await Camera.requestPermissionsAsync()
+    if (status === 'granted') {
+      // do something
+      setStartCamera(true)
+
+    } else {
+      console.log("Denied")
+    }
+  }
+
+  const takePicture = async () => {
+    if (!camera) return
+    const photo = await camera.takePictureAsync({
+      base64: true
+    })
+    setStartCamera(!startCamera)
+
+    const path = uuid.v4() + '.jpg'
+
+    const { data, error } = await supabase
+      .storage
+      .from('images')
+      .upload(path, decode(photo.base64), {
+        contentType: 'image/jpg'
+      })
+
+    if (error) throw error
+
+    setData({
+      ...data,
+      image: "https://pbzpaphgrnvhckzzqwve.supabase.co/storage/v1/object/public/images/" + path
+    })
+  }
+
   useEffect(() => {
     fetchData()
       .catch((e) => console.log(e))
@@ -49,11 +90,56 @@ export default function ({
     <Layout
       style={{ margin: 18 }}
     >
+      <Modal
+        animationType="slide"
+        visible={startCamera}
+        onRequestClose={() => {
+          setStartCamera(!startCamera);
+        }}>
+        <Camera
+          type={CameraType.back}
+          style={{ flex: 1, width: "100%" }}
+          ref={(r) => {
+            camera = r
+          }}
+        >
+          <View
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              flexDirection: 'row',
+              flex: 1,
+              width: '100%',
+              padding: 20,
+              justifyContent: 'space-between'
+            }}
+          >
+            <View
+              style={{
+                alignSelf: 'center',
+                flex: 1,
+                alignItems: 'center'
+              }}
+            >
+              <TouchableOpacity
+                onPress={takePicture}
+                style={{
+                  width: 70,
+                  height: 70,
+                  bottom: 0,
+                  borderRadius: 50,
+                  backgroundColor: '#fff'
+                }}
+              />
+            </View>
+          </View>
+
+        </Camera>
+      </Modal>
       {loading && <Text>Loading...</Text>}
       {data && (
         <>
           <View style={{ marginBottom: 9 }}>
-
             <Text style={{ marginBottom: 10 }}>Dogs name</Text>
             <TextInput
               placeholder="Your dogs name"
@@ -113,6 +199,16 @@ export default function ({
             />
           </View>
           <Button
+            text={"Take Picture"}
+            onPress={() => {
+              activateCamera()
+            }}
+            style={{
+              marginTop: 20,
+            }}
+            disabled={loading}
+          />
+          <Button
             text={"Save"}
             onPress={() => {
               saveData()
@@ -127,3 +223,47 @@ export default function ({
     </Layout>
   );
 }
+
+const styles = StyleSheet.create({
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+});
