@@ -26,6 +26,7 @@ export default function ({
   const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
+  // Use Supabase API to forget password
   async function forget() {
     setLoading(true);
     const { data, error } = await supabase.auth.api.resetPasswordForEmail(

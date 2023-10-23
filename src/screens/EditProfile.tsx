@@ -18,6 +18,7 @@ export default function ({
   const [startCamera, setStartCamera] = React.useState(false)
   let camera: Camera
 
+  // Fetch data from database
   const fetchData = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     const { data, error } = await supabase.from('profiles').select().eq("user_id", user.id).single()
@@ -28,6 +29,7 @@ export default function ({
     setLoading(false)
   }
 
+  // Save data to database
   const saveData = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     const { error } = await supabase
@@ -44,29 +46,32 @@ export default function ({
       throw error
     }
 
+    // Navigate back
     navigation.pop(1)
   }
 
+  // Make sure we have permissions. Open the camera modal.
   const activateCamera = async () => {
     const { status } = await Camera.requestPermissionsAsync()
     if (status === 'granted') {
-      // do something
       setStartCamera(true)
-
     } else {
       console.log("Denied")
     }
   }
 
+  // Take picture, upload to Supabase bucket, update URL in local object
   const takePicture = async () => {
+
+    // Take Picture
     if (!camera) return
     const photo = await camera.takePictureAsync({
       base64: true
     })
-    setStartCamera(!startCamera)
 
+
+    // Upload file
     const path = uuid.v4() + '.jpg'
-
     const { data, error } = await supabase
       .storage
       .from('images')
@@ -76,10 +81,14 @@ export default function ({
 
     if (error) throw error
 
+    // Update object
     setData({
       ...data,
       image: "https://pbzpaphgrnvhckzzqwve.supabase.co/storage/v1/object/public/images/" + path
     })
+
+    // Close camera
+    setStartCamera(!startCamera)
   }
 
   useEffect(() => {

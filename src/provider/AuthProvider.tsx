@@ -12,6 +12,8 @@ interface Props {
 	children: React.ReactNode;
 }
 
+// This serves as the global React Native provider to ensure we are logged in or out, and throw the ones logged out,
+// out of the sensitive information screens
 const AuthProvider = (props: Props) => {
 	const [user, setUser] = useState<null | boolean>(null);
 	const [session, setSession] = useState<Session | null>(null);

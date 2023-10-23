@@ -13,6 +13,7 @@ export default function ({
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // Fetch profile data from DB
   const fetchData = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     const { data, error } = await supabase.from('profiles').select().eq("user_id", user.id).single()
@@ -23,6 +24,7 @@ export default function ({
     setLoading(false)
   }
 
+  // Load data after UI
   useEffect(() => {
     fetchData()
       .catch((e) => console.log(e))

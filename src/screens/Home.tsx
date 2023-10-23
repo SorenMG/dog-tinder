@@ -19,6 +19,7 @@ export default function ({
   const [data, setData] = useState(undefined);
   const [loading, setLoading] = useState(true);
 
+  // Fetch profiles from DB
   const fetchData = async () => {
     const { data, error } = await supabase.from('profiles').select()
     if (error) {
@@ -28,27 +29,29 @@ export default function ({
     setLoading(false)
   }
 
+  // Load data after UI is loaded
   useEffect(() => {
     fetchData()
       .catch((e) => console.log(e))
   }, [])
 
-  return (<View style={styles.container}>
-    <View style={styles.cardContainer}>
-      {loading && <Text>Loading...</Text>}
-      {data && data?.map((dog) =>
-        <TinderCard key={dog.name}>
-          <View style={styles.card}>
-            <ImageBackground style={styles.cardImage} source={{ uri: dog.image }}>
-              <View style={styles.titleContainer}>
-                <Text style={styles.cardTitle}>{dog.name}</Text>
-              </View>
-            </ImageBackground>
-          </View>
-        </TinderCard>
-      )}
-    </View>
-  </View>)
+  return (
+    <View style={styles.container}>
+      <View style={styles.cardContainer}>
+        {loading && <Text>Loading...</Text>}
+        {data && data?.map((dog) =>
+          <TinderCard key={dog.name}>
+            <View style={styles.card}>
+              <ImageBackground style={styles.cardImage} source={{ uri: dog.image }}>
+                <View style={styles.titleContainer}>
+                  <Text style={styles.cardTitle}>{dog.name}</Text>
+                </View>
+              </ImageBackground>
+            </View>
+          </TinderCard>
+        )}
+      </View>
+    </View>)
 }
 
 const styles = StyleSheet.create({

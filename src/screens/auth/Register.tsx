@@ -24,6 +24,7 @@ export default function ({
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
+  // Use Supabase API to register
   async function register() {
     setLoading(true);
     const { user, error } = await supabase.auth.signUp({
