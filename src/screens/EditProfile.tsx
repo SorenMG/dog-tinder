@@ -194,6 +194,20 @@ export default function ({
             />
           </View>
           <View style={{ marginBottom: 9 }}>
+            <Text style={{ marginBottom: 10 }}>Phone</Text>
+            <TextInput
+              placeholder="+45.."
+              value={String(data.phone_number)}
+              onChangeText={
+                (val) => {
+                  setData({
+                    ...data,
+                    phone_number: Number(val)
+                  })
+                }}
+            />
+          </View>
+          <View style={{ marginBottom: 9 }}>
             <Text style={{ marginBottom: 10 }}>Url to dog picture</Text>
             <TextInput
               placeholder="https://..."

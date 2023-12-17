@@ -21,7 +21,6 @@ export default function ({
       throw error
     }
     setData(data)
-    console.log(data)
   }
 
   // Load data after UI is loaded
