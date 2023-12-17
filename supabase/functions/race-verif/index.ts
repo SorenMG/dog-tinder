@@ -14,24 +14,31 @@ const supabase = createClient(
 Deno.serve(async (req) => {
   const { id } = await req.json()
 
-  const { data: { profile }, error } = await supabase.from('profiles').select().eq('id', id).single()
+  console.log(id)
+
+  const { data, error } = await supabase.from('profiles').select().eq('user_id', id).single()
   if (error) throw error
 
-  const race = await hf.imageClassifcation({
-    data: await (await fetch(profile.image)).blob(),
-    model: 'roschmid/dog-races'
+  console.log(data)
+
+  const race = await hf.imageClassification({
+    data: await (await fetch(data.image)).blob(),
+    model: 'skyau/dog-breed-classifier-vit'
   })
 
   console.log(race)
 
-  await supabase.from('profiles')
-    .update({
-      race: race
-    })
-    .eq('user_id', profile.user_id)
+  if (race.length == 0) {
+    return new Response(
+      "Not identified",
+      { status: 500 }
+    )
+  }
+
+  race.sort((a, b) => b - a)
 
   return new Response(
-    JSON.stringify(race),
+    JSON.stringify({race: race[0].label}),
     { headers: { "Content-Type": "application/json" } },
   )
 })
