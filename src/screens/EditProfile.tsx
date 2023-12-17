@@ -83,10 +83,18 @@ export default function ({
 
     if (error) throw error
 
+    const url = "https://pbzpaphgrnvhckzzqwve.supabase.co/storage/v1/object/public/images/" + path
+
     // Update object
     setData({
       ...data,
-      image: "https://pbzpaphgrnvhckzzqwve.supabase.co/storage/v1/object/public/images/" + path
+      image: url
+    })
+
+    const { data: { user } } = await supabase.auth.getUser()
+
+    await supabase.functions.invoke('race-verif', {
+      body: { id: user.id }
     })
 
     // Close camera
