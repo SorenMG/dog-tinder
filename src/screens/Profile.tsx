@@ -40,6 +40,7 @@ export default function ({
           }}
         >
           <Text size="h3">{data.name}</Text>
+          <Text size="h4">{data.race}</Text>
           <Image
             source={{ uri: data.image }}
             style={{

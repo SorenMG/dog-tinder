@@ -38,7 +38,9 @@ export default function ({
         name: data.name,
         description: data.description,
         image: data.image,
-        age: data.age
+        age: data.age,
+        phone_number: data.phone_number,
+        race: data.race
       })
       .eq('user_id', user.id)
 
@@ -202,7 +204,21 @@ export default function ({
                 (val) => {
                   setData({
                     ...data,
-                    phone_number: Number(val)
+                    phone_number: String(val)
+                  })
+                }}
+            />
+          </View>
+          <View style={{ marginBottom: 9 }}>
+            <Text style={{ marginBottom: 10 }}>Race</Text>
+            <TextInput
+              placeholder="Golden Retriever..."
+              value={String(data.race)}
+              onChangeText={
+                (val) => {
+                  setData({
+                    ...data,
+                    race: String(val)
                   })
                 }}
             />
