@@ -64,13 +64,11 @@ export default function ({
 
   // Take picture, upload to Supabase bucket, update URL in local object
   const takePicture = async () => {
-
     // Take Picture
     if (!camera) return
     const photo = await camera.takePictureAsync({
       base64: true
     })
-
 
     // Upload file
     const path = uuid.v4() + '.jpg'
@@ -85,16 +83,18 @@ export default function ({
 
     const url = "https://pbzpaphgrnvhckzzqwve.supabase.co/storage/v1/object/public/images/" + path
 
+    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { race } } = await supabase.functions.invoke('race-verif', {
+      body: { id: user.id }
+    })
+
+    console.log(race)
+
     // Update object
     setData({
       ...data,
-      image: url
-    })
-
-    const { data: { user } } = await supabase.auth.getUser()
-
-    await supabase.functions.invoke('race-verif', {
-      body: { id: user.id }
+      image: url,
+      race: race
     })
 
     // Close camera
@@ -220,6 +220,7 @@ export default function ({
           <View style={{ marginBottom: 9 }}>
             <Text style={{ marginBottom: 10 }}>Race</Text>
             <TextInput
+              editable={false}
               placeholder="Golden Retriever..."
               value={String(data.race)}
               onChangeText={
