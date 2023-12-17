@@ -18,6 +18,23 @@ export default function ({
 }: NativeStackScreenProps<MainStackParamList, "MainTabs">) {
   const [data, setData] = useState(undefined);
   const [loading, setLoading] = useState(true);
+  const [index, setIndex] = useState(0);
+
+  // Enable matching
+  const onSwipe = async (direction) => {
+    if (direction == "right") {
+      const dog = data[index];
+      const { data: { user } } = await supabase.auth.getUser();
+      await supabase.from('matches')
+        .insert({
+          matcher: user.id,
+          matching: dog.id,
+          matching_name: dog.name,
+          phone_number: dog.phone_number
+        })
+    }
+    setIndex(index + 1)
+  }
 
   // Fetch profiles from DB
   const fetchData = async () => {
@@ -40,7 +57,7 @@ export default function ({
       <View style={styles.cardContainer}>
         {loading && <Text>Loading...</Text>}
         {data && data?.map((dog) =>
-          <TinderCard key={dog.name}>
+          <TinderCard onSwipe={onSwipe} key={dog.name}>
             <View style={styles.card}>
               <ImageBackground style={styles.cardImage} source={{ uri: dog.image }}>
                 <View style={styles.titleContainer}>
